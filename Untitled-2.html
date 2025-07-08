@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>멋진 투두리스트</title>
+  <style>
+    body {
+      background: #f0f4f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 50px;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    #todo-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    #todo-input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    #add-btn {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+    #add-btn:hover {
+      background-color: #0056b3;
+    }
+    ul#todo-list {
+      list-style: none;
+      padding: 0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    ul#todo-list li {
+      background: #fafafa;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: background-color 0.3s;
+    }
+    ul#todo-list li:hover {
+      background-color: #e6f0ff;
+    }
+    ul#todo-list li input[type="checkbox"] {
+      margin-right: 15px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    ul#todo-list li.completed label {
+      text-decoration: line-through;
+      color: #999;
+      font-style: italic;
+    }
+    ul#todo-list li label {
+      flex: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+    .remove-btn {
+      background: #ff4d4f;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+    .remove-btn:hover {
+      background: #cc393b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>대충</h1>
+    <div class="input-area">
+      <input type="text" id="todo-input" placeholder="할 일을 입력하세요" />
+      <button id="add-btn">추가</button>
+    </div>
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+    // 화면에 할 일 보여주기
+    function render() {
+      const list = document.getElementById('todo-list');
+      list.innerHTML = '';
+
+      todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        li.className = todo.completed ? 'completed' : '';
+
+        // 체크박스
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.onclick = () => {
+          todos[index].completed = checkbox.checked;
+          saveAndRender();
+        };
+
+        // 라벨(할 일 내용)
+        const label = document.createElement('label');
+        label.textContent = todo.text;
+
+        // 삭제 버튼
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '삭제';
+        removeBtn.className = 'remove-btn';
+        removeBtn.onclick = () => {
+          todos.splice(index, 1);
+          saveAndRender();
+        };
+
+        li.appendChild(checkbox);
+        li.appendChild(label);
+        li.appendChild(removeBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+      render();
+    }
+
+    function addTodo() {
+      const input = document.getElementById('todo-input');
+      const text = input.value.trim();
+      if(text) {
+        todos.push({ text: text, completed: false });
+        input.value = '';
+        saveAndRender();
+      }
+    }
+
+    document.getElementById('add-btn').addEventListener('click', addTodo);
+
+    // 엔터키로도 추가 가능
+    document.getElementById('todo-input').addEventListener('keyup', (e) => {
+      if(e.key === 'Enter') addTodo();
+    });
+
+    render();
+  </script>
+</body>
+</html>
